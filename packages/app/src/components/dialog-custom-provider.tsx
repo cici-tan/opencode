@@ -29,7 +29,9 @@ export function DialogCustomProvider(props: Props) {
 
   const existingConfig = createMemo(() => {
     if (!props.edit || !props.providerID) return undefined
-    return globalSync.data.config.provider?.[props.providerID]
+    const config = globalSync.data.config.provider?.[props.providerID]
+    console.log("[edit provider] existingConfig:", props.providerID, config)
+    return config
   })
 
   const existingProvider = createMemo(() => {
@@ -163,6 +165,8 @@ export function DialogCustomProvider(props: Props) {
 
   const saveMutation = useMutation(() => ({
     mutationFn: async (result: NonNullable<ReturnType<typeof validate>>) => {
+      console.log("[edit provider] saving config:", result.config)
+      console.log("[edit provider] models to save:", Object.keys(result.config.models ?? {}))
       const disabledProviders = globalSync.data.config.disabled_providers ?? []
       const nextDisabled = disabledProviders.filter((id) => id !== result.providerID)
 
@@ -180,6 +184,7 @@ export function DialogCustomProvider(props: Props) {
         provider: { [result.providerID]: result.config },
         disabled_providers: nextDisabled,
       })
+      console.log("[edit provider] save complete")
       return result
     },
     onSuccess: (result) => {
